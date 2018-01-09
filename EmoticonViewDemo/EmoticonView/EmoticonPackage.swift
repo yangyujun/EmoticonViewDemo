@@ -39,7 +39,7 @@ class EmoticonPackage: NSObject {
     class func loadPackages() -> [EmoticonPackage] {
         
         var packages = [EmoticonPackage]()
-        // 0.创建最近组
+        // 创建最近组
         let pk = EmoticonPackage(id: "")
         pk.group_name_cn = "最近"
         pk.emoticons = [Emoticon]()
@@ -48,16 +48,14 @@ class EmoticonPackage: NSObject {
         
         
         let path = Bundle.main.path(forResource: "emoticons.plist", ofType: nil, inDirectory: "Emoticons.bundle")!
-        //Bundle.main().pathForResource("emoticons.plist", ofType: nil, inDirectory: "Emoticons.bundle")!
-        // 1.加载emoticons.plist
+        // 加载emoticons.plist
         let dict = NSDictionary(contentsOfFile: path)!
-        //NSDictionary(contentsOfFile: path)!
-        // 2.或emoticons中获取packages
+        // 或emoticons中获取packages
         let dictArray = dict["packages"] as! [[String:AnyObject]]
-        // 3.遍历packages数组
+        // 遍历packages数组
         for d in dictArray
         {
-            // 4.取出ID, 创建对应的组
+            // 取出ID, 创建对应的组
             let package = EmoticonPackage(id: d["id"]! as! String)
             packages.append(package)
             package.loadEmoticons()
@@ -69,10 +67,9 @@ class EmoticonPackage: NSObject {
     /// 加载每一组中所有的表情
     func loadEmoticons() {
         let emoticonDict = NSDictionary.init(contentsOfFile: infoPath(fileName: "info.plist"))!
-        //NSDictionary(contentsOfFile: infoPath("info.plist"))!
         group_name_cn = emoticonDict["group_name_cn"] as? String
         let dictArray = emoticonDict["emoticons"] as! [[String: String]]
-        //        emoticons = [Emoticon]
+    
         var index = 0
         for dict in dictArray{ // 固定102
             
@@ -110,12 +107,12 @@ class EmoticonPackage: NSObject {
      */
     func appendEmoticons(emoticon: Emoticon)
     {
-        // 1.判断是否是删除按钮
+        // 判断是否是删除按钮
         if emoticon.isRemoveButton
         {
             return
         }
-        // 2.判断当前点击的表情是否已经添加到最近数组中
+        // 判断当前点击的表情是否已经添加到最近数组中
         let contains = emoticons.contains(emoticon)
         if !contains
         {
@@ -124,12 +121,12 @@ class EmoticonPackage: NSObject {
             emoticons.append(emoticon)
         }
         
-        // 3.对数组进行排序
+        // 对数组进行排序
         var result = emoticons.sorted(by: { (e1, e2) -> Bool in
             return e1.times > e2.times
         })
         
-        // 4.删除多余的表情
+        // 删除多余的表情
         if !contains
         {
             result.removeLast()
@@ -177,15 +174,15 @@ class Emoticon: NSObject {
     /// emoji表情对应的十六进制字符串
     var code: String?{
         didSet{
-            // 1.从字符串中取出十六进制的数
+            // 从字符串中取出十六进制的数
             // 创建一个扫描器, 扫描器可以从字符串中提取我们想要的数据
             let scanner = Scanner(string: code!)
             
-            // 2.将十六进制转换为字符串
+            // 将十六进制转换为字符串
             var result:UInt32 = 0
             scanner.scanHexInt32(&result)
             
-            // 3.将十六进制转换为emoji字符串
+            // 将十六进制转换为emoji字符串
             emojiStr = "\(Character(UnicodeScalar(result)!))"
         }
     }

@@ -15,14 +15,14 @@ class EmoticonTextAttachment: NSTextAttachment {
     /// 根据表情模型, 创建表情字符串
     class func imageText(emoticon: Emoticon, font: CGFloat) -> NSAttributedString{
         
-        // 1.创建附件
+        // 创建附件
         let attachment = EmoticonTextAttachment()
         attachment.chs = emoticon.chs
         attachment.image = UIImage(contentsOfFile: emoticon.imagePath!)
         // 设置了附件的大小
         attachment.bounds = CGRect(x: 0, y: -4, width: font, height: font)
         
-        // 2. 根据附件创建属性字符串
+        // 根据附件创建属性字符串
         return NSAttributedString(attachment: attachment)
     }
 }

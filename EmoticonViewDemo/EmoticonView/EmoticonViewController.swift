@@ -10,6 +10,7 @@
 import UIKit
 
 private let XMGEmoticonCellReuseIdentifier = "XMGEmoticonCellReuseIdentifier"
+
 class EmoticonViewController: UIViewController {
     
     /// 定义一个闭包属性, 用于传递选中的表情模型
@@ -25,12 +26,11 @@ class EmoticonViewController: UIViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = UIColor.red
         
-        // 1.初始化UI
+        // 初始化UI
         setupUI()
     }
     /**
@@ -38,15 +38,14 @@ class EmoticonViewController: UIViewController {
      */
     private func setupUI()
     {
-        // 1.添加子控件
+        // 添加子控件
         view.addSubview(collectionVeiw)
         view.addSubview(toolbar)
         
-        // 2.布局子控件
+        // 布局子控件
         collectionVeiw.translatesAutoresizingMaskIntoConstraints = false
         toolbar.translatesAutoresizingMaskIntoConstraints = false
         
-        // 提示: 如果想自己封装一个框架, 最好不要依赖其它框架
         var cons = [NSLayoutConstraint]()
         let dict = ["collectionVeiw": collectionVeiw, "toolbar": toolbar] as [String : Any]
         cons += NSLayoutConstraint.constraints(withVisualFormat: "H:|-0-[collectionVeiw]-0-|", options: NSLayoutFormatOptions(rawValue: 0), metrics: nil, views: dict)
@@ -91,36 +90,27 @@ class EmoticonViewController: UIViewController {
 
 extension EmoticonViewController{
     
-    @objc func itemClick(_ item: UIBarButtonItem)
-    {
-        let indexPath = IndexPath(item: 0, section: item.tag)
-        collectionVeiw.scrollToItem(at: indexPath, at: UICollectionViewScrollPosition.left, animated: true)
-    }
-    
 }
 
 extension EmoticonViewController: UICollectionViewDataSource, UICollectionViewDelegate
 {
-    // 告诉系统有多少组
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return packages.count
     }
-    // 告诉系统每组有多少行
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return packages[section].emoticons.count
     }
-    // 告诉系统每行显示什么内容
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: XMGEmoticonCellReuseIdentifier, for: indexPath) as! EmoticonCell
         
-        //        cell.backgroundColor = (indexPath.item % 2 == 0) ? UIColor.red : UIColor.green
-        
-        // 1.取出对应的组
+        // 取出对应的组
         let package = packages[indexPath.section]
-        // 2.取出对应组对应行的模型
+        // 取出对应组对应行的模型
         let emoticon = package.emoticons[indexPath.item]
-        // 3.赋值给cell
+        // 赋值给cell
         cell.emoticon = emoticon
         
         return cell
@@ -129,16 +119,21 @@ extension EmoticonViewController: UICollectionViewDataSource, UICollectionViewDe
     // 选中某一个cell时调用
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        // 1.处理最近表情, 将当前使用的表情添加到最近表情的数组中
+        // 处理最近表情, 将当前使用的表情添加到最近表情的数组中
         let emoticon = packages[indexPath.section].emoticons[indexPath.item]
         emoticon.times = emoticon.times + 1
         packages[0].appendEmoticons(emoticon: emoticon)
         //        collectionView.reloadSections(NSIndexSet(index: 0))
         
-        // 2.回调通知使用者当前点击了那个表情
+        //回调通知使用者当前点击了那个表情
         emoticonDidSelectedCallBack(emoticon)
     }
     
+    @objc func itemClick(_ item: UIBarButtonItem)
+    {
+        let indexPath = IndexPath(item: 0, section: item.tag)
+        collectionVeiw.scrollToItem(at: indexPath, at: UICollectionViewScrollPosition.left, animated: true)
+    }
 }
 
 class EmoticonCell: UICollectionViewCell {
@@ -146,25 +141,25 @@ class EmoticonCell: UICollectionViewCell {
     var emoticon: Emoticon?
     {
         didSet{
-            // 1.判断是否是图片表情
+            // 判断是否是图片表情
             if emoticon!.chs != nil
             {
-                iconButton.setImage(UIImage.init(contentsOfFile: emoticon!.imagePath!), for: .normal)
+                iconButton.setImage(UIImage(contentsOfFile: emoticon!.imagePath!), for: .normal)
             }else
             {
                 // 防止重用
                 iconButton.setImage(nil, for: .normal)
             }
             
-            // 2.设置emoji表情
+            // 设置emoji表情
             // 注意: 加上??可以防止重用
             iconButton.setTitle(emoticon!.emojiStr ?? "", for: .normal)
             
-            // 3.判断是否是删除按钮
+            // 判断是否是删除按钮
             if emoticon!.isRemoveButton
             {
-                iconButton.setImage(UIImage.init(named: "compose_emotion_delete"), for: .normal)
-                iconButton.setImage(UIImage.init(named: "compose_emotion_delete_highlighted"), for: .highlighted)
+                iconButton.setImage(UIImage.init(named: "faceDelete"), for: .normal)
+                iconButton.setImage(UIImage.init(named: "faceDelete"), for: .highlighted)
             }
         }
     }
@@ -178,7 +173,7 @@ class EmoticonCell: UICollectionViewCell {
     private func setupUI()
     {
         contentView.addSubview(iconButton)
-        iconButton.backgroundColor = UIColor.white
+        iconButton.backgroundColor = UIColor.orange
         iconButton.frame = contentView.bounds.insetBy(dx: 4, dy: 4)
         iconButton.isUserInteractionEnabled = false
     }
@@ -200,13 +195,13 @@ class EmoticonLayout: UICollectionViewFlowLayout {
     
     override func prepare() {
         super.prepare()
-        // 1.设置cell相关属性
+        // 设置cell相关属性
         let width = collectionView!.bounds.width / 7
         itemSize = CGSize(width: width, height: width)
         minimumInteritemSpacing = 0
         minimumLineSpacing = 0
         scrollDirection = UICollectionViewScrollDirection.horizontal
-        // 2.设置collectionview相关属性
+        // 设置collectionview相关属性
         collectionView?.isPagingEnabled = true
         collectionView?.bounces = false
         collectionView?.showsHorizontalScrollIndicator = false
